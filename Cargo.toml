@@ -1,0 +1,8 @@
+[package]
+name = "csvmipmap"
+version = "0.1.0"
+authors = ["carlos_urzua"]
+
+[dependencies]
+
+csv = "1"
