@@ -97,7 +97,7 @@ fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
 fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<(), Box<Error>> {
     // Build the CSV reader and iterate over each record.
     let mut rdr = csv::ReaderBuilder::new()
-        .has_headers(true)
+        .has_headers(false)
         .delimiter(b'\t')
         .from_path(target_file)?;
         //.from_path("test.tsv")?;
@@ -116,33 +116,9 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
 
 	    if let Some(result) = iter.next() {
 	        let record = result?;
-	        columns = record.len();
+	        columns = record.len() - 1;
 	        how_many_bins = (columns + bin_size_c - 1)/bin_size_c;
 	        my_row = MapRow::new(how_many_bins);
-	        for (index_row, field) in record.iter().enumerate()
-	        {
-	        	//let value = field.parse::<f64>().unwrap_or_else(|field| { println!("Value cannot be parsed into float -> {}", field); });
-	        	if index_row > 1{
-	        		let value = field.parse::<f64>().expect("Value cannot be parsed into float");
-
-
-	        	let which_bin = index_row / bin_size_c; //Floor of integer division
-
-	        	//println!("{}:val{}", which_bin, value);
-
-	        	my_row.update(which_bin, value)
-
-	        	}
-	        	
-
-	        }
-
-	        row_counter += 1;
-
-	        if row_counter % bin_size_r == 0 {
-	        	my_row.print();
-	        	my_row.erase();
-	        }
 	    } else {
 	    	panic!("No fields!")
 	    }
@@ -165,13 +141,13 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
         {
         	//let value = field.parse::<f64>().unwrap_or_else(|field| { println!("Value cannot be parsed into float -> {}", field); });
 
-        	if index_row > 1{
+        	if index_row > 0{
 	        		let value = field.parse::<f64>().expect("Value cannot be parsed into float");
 
 
-	        	let which_bin = index_row / bin_size_c; //Floor of integer division
+	        	let which_bin = (index_row - 1) / bin_size_c; //Floor of integer division
 
-	        	//println!("{}:val{}", which_bin, value);
+	        	//println!("place:{} bin:{}:val{}", index_row, which_bin, value);
 
 	        	my_row.update(which_bin, value)
 
@@ -188,7 +164,9 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
 
     }
 
-    my_row.print();
+    if row_counter % bin_size_r != 0 {
+    	my_row.print();
+	}
 
     //println!("{}", _total);
     Ok(())
