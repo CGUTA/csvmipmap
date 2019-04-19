@@ -4,6 +4,7 @@ use std::error::Error;
 //use std::io;
 use std::process;
 use std::env;
+use std::str::FromStr;
 
 #[derive(Clone)]
 struct Bin {
@@ -81,7 +82,19 @@ impl MapRow{
 	}
 }
 
-fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
+fn parse_pair<T: FromStr>(s: &str, separator: char) -> Option<(T, T)> {
+    match s.find(separator) {
+        None => None,
+        Some(index) => {
+            match (T::from_str(&s[..index]), T::from_str(&s[index + 1..])) {
+                (Ok(l), Ok(r)) => Some((l, r)),
+                _ => None
+            }
+        }
+    }
+}
+
+fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<(), Box<Error>> {
     // Build the CSV reader and iterate over each record.
     let mut rdr = csv::ReaderBuilder::new()
         .has_headers(true)
@@ -104,7 +117,7 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 	    if let Some(result) = iter.next() {
 	        let record = result?;
 	        columns = record.len();
-	        how_many_bins = (columns + bin_size - 1)/bin_size;
+	        how_many_bins = (columns + bin_size_c - 1)/bin_size_c;
 	        my_row = MapRow::new(how_many_bins);
 	        for (index_row, field) in record.iter().enumerate()
 	        {
@@ -113,7 +126,7 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 	        		let value = field.parse::<f64>().expect("Value cannot be parsed into float");
 
 
-	        	let which_bin = index_row / bin_size; //Floor of integer division
+	        	let which_bin = index_row / bin_size_c; //Floor of integer division
 
 	        	//println!("{}:val{}", which_bin, value);
 
@@ -126,7 +139,7 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 
 	        row_counter += 1;
 
-	        if row_counter % bin_size == 0 {
+	        if row_counter % bin_size_r == 0 {
 	        	my_row.print();
 	        	my_row.erase();
 	        }
@@ -156,7 +169,7 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 	        		let value = field.parse::<f64>().expect("Value cannot be parsed into float");
 
 
-	        	let which_bin = index_row / bin_size; //Floor of integer division
+	        	let which_bin = index_row / bin_size_c; //Floor of integer division
 
 	        	//println!("{}:val{}", which_bin, value);
 
@@ -168,7 +181,7 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 
         row_counter += 1;
 
-        if row_counter % bin_size == 0 {
+        if row_counter % bin_size_r == 0 {
         	my_row.print();
         	my_row.erase();
         }
@@ -184,10 +197,13 @@ fn example(target_file: &str, bin_size: usize) -> Result<(), Box<Error>> {
 fn main() {
 
 	let args: Vec<String> = env::args().collect();
-	let bin_size = &args[1].parse::<usize>().expect("Invalid bin size");
+	//let bin_size = &args[1].parse::<usize>().expect("Invalid bin size");
+	let bounds = parse_pair(&args[1], ',').expect("error parsing bin dimensions");
+	let rows: usize = bounds.0;
+	let cols: usize = bounds.1;
 	let target_file = &args[2];
 
-    if let Err(err) = example(target_file, *bin_size) {
+    if let Err(err) = example(target_file, rows, cols) {
         println!("error running example: {}", err);
         process::exit(1);
     }
