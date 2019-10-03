@@ -142,7 +142,8 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
         	//let value = field.parse::<f64>().unwrap_or_else(|field| { println!("Value cannot be parsed into float -> {}", field); });
 
         	if index_row > 0{
-	        		let value = field.parse::<f64>().expect("Value cannot be parsed into float");
+	        		let value = field.parse::<f64>()
+	        			.expect("Value cannot be parsed into float");
 
 
 	        	let which_bin = (index_row - 1) / bin_size_c; //Floor of integer division
