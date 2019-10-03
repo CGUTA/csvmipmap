@@ -1,4 +1,5 @@
 extern crate csv;
+extern crate lexical;
 
 use std::error::Error;
 //use std::io;
@@ -142,7 +143,7 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
         	//let value = field.parse::<f64>().unwrap_or_else(|field| { println!("Value cannot be parsed into float -> {}", field); });
 
         	if index_row > 0{
-	        		let value = field.parse::<f64>()
+	        		let value = lexical::parse::<f64, _>(field)
 	        			.expect("Value cannot be parsed into float");
 
 

@@ -6,3 +6,4 @@ authors = ["carlos_urzua"]
 [dependencies]
 
 csv = "1"
+lexical = "4.0.0"
