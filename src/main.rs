@@ -144,7 +144,7 @@ fn example(target_file: &str, bin_size_r: usize, bin_size_c: usize) -> Result<()
 
         	if index_row > 0{
 	        		let value = lexical::parse::<f64, _>(field)
-	        			.expect("Value cannot be parsed into float");
+	        			.unwrap_or(0.0);
 
 
 	        	let which_bin = (index_row - 1) / bin_size_c; //Floor of integer division
